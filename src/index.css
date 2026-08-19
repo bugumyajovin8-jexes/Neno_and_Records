@@ -1,0 +1,132 @@
+/* Six families were requested at full variable weight ranges (100..900 plus
+   italics). Narrowed to the weights actually used, and Noto Sans dropped — it
+   only ever appeared as a fallback behind Sora. These are still fetched from
+   Google, so they are unavailable offline; see the note in README.md. */
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:wght@400..800&family=Playfair+Display:ital,wght@0,400..800;1,400..700&family=Sora:wght@300..800&family=Source+Sans+3:wght@300..800&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Playfair Display", ui-serif, Georgia, serif;
+  --font-serif: "Lora", ui-serif, Georgia, serif;
+  --font-accent: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+
+  --color-gold: #C5A059;
+  --color-gold-light: #D4AF37;
+  --color-ink-dark: #0A0F19;
+  --color-ink-light: #F8F9FA;
+}
+
+/* ============================================================================
+   Theme-aware tokens
+   ============================================================================
+   The palette was designed against dark navy, where the golds score 7.5–11:1.
+   On the light theme — which is the DEFAULT — the same golds land at 1.99:1,
+   making verse numbers and section labels effectively invisible.
+
+   `--gold-ink` is the gold to use for TEXT on a surface; it darkens in light
+   mode. `--gold-fill` is the gold used as a BACKGROUND and never changes, so
+   anything sitting on it uses `--on-gold`, which is likewise fixed.
+   ============================================================================ */
+:root {
+  --gold-ink:  #7d5410;  /* 6.60:1 on white; clears AA on the gold-tinted
+                            scripture card too, where #8f6113 sat at 4.47 */
+  --gold-fill: #d9a020;
+  --on-gold:   #1F1503;  /* 7.71:1 on the gold fill (white was 2.33:1) */
+  --muted-ink: #64748b;  /* 4.76:1 on white — slate-400 was 2.56:1 */
+  --hairline:  rgb(15 23 42 / 0.10);
+}
+
+.dark {
+  --gold-ink:  #d9a020;  /* 7.54:1 on the dark card */
+  --gold-fill: #d9a020;
+  --on-gold:   #1F1503;
+  --muted-ink: #94a3b8;  /* 6.87:1 on the dark card */
+  --hairline:  rgb(226 232 240 / 0.12);
+}
+
+body {
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  background-color: var(--color-ink-light);
+  color: #1a1a1a;
+  -webkit-tap-highlight-color: transparent;
+  /* Stops iOS Safari inflating text in landscape and breaking the layout. */
+  -webkit-text-size-adjust: 100%;
+}
+
+.dark body {
+  background-color: var(--color-ink-dark);
+  color: #E2E8F0;
+}
+
+/* Custom scrollbars hidden completely for a clean app-like interface */
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Visible keyboard focus. There was none anywhere in the app before. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--gold-fill);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Inputs below 16px make iOS Safari zoom the page on focus, which breaks the
+   fixed layout and leaves the member stranded mid-form. */
+input, select, textarea { font-size: max(16px, 1em); }
+
+/* Minimum comfortable hit area for the icon-only controls (settings, copy,
+   favourite, chapter arrows). Applied opt-in so it cannot disturb layout
+   elsewhere. */
+.tap-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================================
+   App shell height
+   ============================================================================
+   The shell was `h-screen` (100vh). In a Capacitor WebView 100vh is the whole
+   window and deliberately ignores the soft keyboard, so opening the keyboard in
+   a search field left the shell taller than the visible area — and dismissing
+   it left a dead band where the keyboard had been, as if the app still occupied
+   that space.
+
+   `--app-h` is kept in step with window.visualViewport by src/lib/viewport.ts,
+   which reports what the user can actually see. Browsers without visualViewport
+   fall back to 100dvh, which handles the keyboard on its own.
+
+   This is a plain class rather than a Tailwind arbitrary value: the generated
+   selector for `h-[var(--app-h,100dvh)]` escapes the comma and did not match.
+   ============================================================================ */
+.app-shell {
+  height: var(--app-h, 100dvh);
+}
+
+@media (min-width: 640px) {
+  /* Desktop shows a fixed phone-sized frame; no keyboard to accommodate. */
+  .app-shell {
+    height: 840px;
+  }
+}

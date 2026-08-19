@@ -1,0 +1,16 @@
+.env*
+!.env.example
+
+# Signing material. These two are the only things that can publish an update to
+# the Play listing — committing them hands that ability to anyone with repo
+# access, and Google will not re-issue them.
+*.jks
+*.keystore
+android/keystore.properties
+
+# Build output
+android/app/build/
+android/build/
+android/.gradle/
+android/app/release/
+dist/

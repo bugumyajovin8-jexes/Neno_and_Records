@@ -1,0 +1,7 @@
+# Explicitly declare database, wasm, and pdf files as binary to prevent Git CRLF/LF line ending corruption
+*.db binary
+*.db -text
+*.wasm binary
+*.wasm -text
+*.pdf binary
+*.pdf -text
